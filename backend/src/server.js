@@ -1,4 +1,5 @@
 import http from "node:http";
+import { getPortfolioHoldings } from "./services/portfolio.service.js";
 const PORT = 5000;
 const server = http.createServer((req, res) => {
     if (req.url === "/api/health" && req.method === "GET") {
@@ -11,11 +12,22 @@ const server = http.createServer((req, res) => {
         }));
         return;
     }
+    if (req.url === "/api/portfolio" && req.method === "GET") {
+        const holdings = getPortfolioHoldings();
+        res.writeHead(200, {
+            "Content-Type": "application/json",
+        });
+        res.end(JSON.stringify({
+            success: true,
+            data: holdings,
+        }));
+        return;
+    }
     res.writeHead(404, {
         "Content-Type": "application/json",
     });
     res.end(JSON.stringify({
-        status: "error",
+        success: false,
         message: "Route not found",
     }));
 });
