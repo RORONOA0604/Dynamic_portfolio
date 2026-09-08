@@ -1,8 +1,13 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
   "devDependencies": {
     "@types/node": "^26.5.0",
     "tsx": "^4.23.13",
