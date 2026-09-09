@@ -1,5 +1,13 @@
 import { portfolioHoldings } from "../data/portfolio.js";
+import { calculatePortfolio, calculateSectorSummaries, calculateTotalInvestment, } from "./portfolio-calculation.service.js";
 export function getPortfolioHoldings() {
-    return portfolioHoldings;
+    return calculatePortfolio(portfolioHoldings);
+}
+export function getPortfolioTotalInvestment() {
+    return calculateTotalInvestment(portfolioHoldings);
+}
+export function getPortfolioSectorSummaries() {
+    const holdings = calculatePortfolio(portfolioHoldings);
+    return calculateSectorSummaries(holdings);
 }
 //# sourceMappingURL=portfolio.service.js.map

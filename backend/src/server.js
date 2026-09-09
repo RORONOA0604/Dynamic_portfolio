@@ -1,5 +1,5 @@
 import http from "node:http";
-import { getPortfolioHoldings } from "./services/portfolio.service.js";
+import { getPortfolioHoldings, getPortfolioSectorSummaries, getPortfolioTotalInvestment, } from "./services/portfolio.service.js";
 const PORT = 5000;
 const server = http.createServer((req, res) => {
     if (req.url === "/api/health" && req.method === "GET") {
@@ -14,12 +14,18 @@ const server = http.createServer((req, res) => {
     }
     if (req.url === "/api/portfolio" && req.method === "GET") {
         const holdings = getPortfolioHoldings();
+        const totalInvestment = getPortfolioTotalInvestment();
+        const sectorSummaries = getPortfolioSectorSummaries();
         res.writeHead(200, {
             "Content-Type": "application/json",
         });
         res.end(JSON.stringify({
             success: true,
-            data: holdings,
+            data: {
+                holdings,
+                totalInvestment,
+                sectorSummaries,
+            },
         }));
         return;
     }
