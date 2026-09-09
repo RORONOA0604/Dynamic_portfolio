@@ -19,6 +19,8 @@ export function calculatePortfolio(holdings) {
             presentValue: null,
             gainLoss: null,
             gainLossPercentage: null,
+            peRatio: null,
+            latestEarnings: null,
         };
     });
 }

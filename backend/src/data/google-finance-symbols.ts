@@ -1,0 +1,33 @@
+export const googleFinanceSymbols: Record<string, string> = {
+  HDFCBANK: "HDFCBANK",
+  BAJFINANCE: "BAJFINANCE",
+  "532174": "ICICIBANK",
+  "544252": "BAJAJHFL",
+  "511577": "SAVANI",
+
+  AFFLE: "AFFLE",
+  LTIM: "LTM",
+  "542651": "KPITTECH",
+  "544028": "TATATECH",
+  "544107": "BLSE",
+  "532790": "TANLA",
+
+  DMART: "DMART",
+  "532540": "TATACONSUM",
+  "500331": "PIDILITIND",
+
+  "500400": "TATAPOWER",
+  "542323": "KPIGREEN",
+  "532667": "SUZLON",
+  "542851": "GENSOL",
+
+  "543517": "HARIOMPIPE",
+  ASTRAL: "ASTRAL",
+  "542652": "POLYCAB",
+
+  "543318": "CLEAN",
+  "506401": "DEEPAKNTR",
+  "541557": "FINEORG",
+  "533282": "GRAVITA",
+  "540719": "SBILIFE",
+};

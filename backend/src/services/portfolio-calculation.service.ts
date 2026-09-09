@@ -7,6 +7,8 @@ export interface CalculatedPortfolioHolding extends PortfolioHolding {
   presentValue: number | null;
   gainLoss: number | null;
   gainLossPercentage: number | null;
+  peRatio: number | null;
+  latestEarnings: number | null;
 }
 
 export interface SectorSummary {
@@ -44,14 +46,16 @@ export function calculatePortfolio(
         : (investment / totalInvestment) * 100;
 
     return {
-      ...holding,
-      investment,
-      portfolioPercentage: roundToTwo(portfolioPercentage),
-      currentPrice: null,
-      presentValue: null,
-      gainLoss: null,
-      gainLossPercentage: null,
-    };
+  ...holding,
+  investment,
+  portfolioPercentage: roundToTwo(portfolioPercentage),
+  currentPrice: null,
+  presentValue: null,
+  gainLoss: null,
+  gainLossPercentage: null,
+  peRatio: null,
+  latestEarnings: null,
+};  
   });
 }
 

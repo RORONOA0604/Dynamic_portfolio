@@ -1,8 +1,12 @@
 import YahooFinance from "yahoo-finance2";
 import { yahooSymbols } from "../data/yahoo-symbols.js";
-
-const yahooFinance = new YahooFinance();
-
+import { MemoryCache } from "../utils/cache.js";
+const yahooFinance = new YahooFinance({
+  suppressNotices: ["yahooSurvey"],
+});
+const yahooPriceCache = new MemoryCache<MarketPrice[]>(
+  15 * 1000
+);
 export interface MarketPrice {
   exchangeCode: string;
   symbol: string;
@@ -16,6 +20,13 @@ export function getYahooSymbol(exchangeCode: string): string | null {
 export async function getMarketPrices(
   exchangeCodes: string[]
 ): Promise<MarketPrice[]> {
+      const cacheKey = exchangeCodes.join(",");
+
+  const cachedPrices = yahooPriceCache.get(cacheKey);
+
+  if (cachedPrices) {
+    return cachedPrices;
+  }
   const requests = exchangeCodes
     .map((exchangeCode) => {
       const symbol = getYahooSymbol(exchangeCode);
@@ -53,21 +64,25 @@ export async function getMarketPrices(
     ])
   );
 
-  return requests
-    .map((request) => {
-      const currentPrice = quoteMap.get(request.symbol);
+  const prices = requests
+  .map((request) => {
+    const currentPrice = quoteMap.get(request.symbol);
 
-      if (currentPrice === undefined) {
-        return null;
-      }
+    if (currentPrice === undefined) {
+      return null;
+    }
 
-      return {
-        exchangeCode: request.exchangeCode,
-        symbol: request.symbol,
-        currentPrice,
-      };
-    })
-    .filter(
-      (price): price is MarketPrice => price !== null
-    );
+    return {
+      exchangeCode: request.exchangeCode,
+      symbol: request.symbol,
+      currentPrice,
+    };
+  })
+  .filter(
+    (price): price is MarketPrice => price !== null
+  );
+
+yahooPriceCache.set(cacheKey, prices);
+
+return prices;
 }

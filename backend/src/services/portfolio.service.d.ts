@@ -1,5 +1,20 @@
 export declare function getPortfolioData(): Promise<{
-    holdings: import("./portfolio-calculation.service.js").CalculatedPortfolioHolding[];
+    holdings: {
+        id: string;
+        name: string;
+        sector: string;
+        purchasePrice: number;
+        quantity: number;
+        exchangeCode: string;
+        investment: number;
+        portfolioPercentage: number;
+        currentPrice: number | null;
+        presentValue: number | null;
+        gainLoss: number | null;
+        gainLossPercentage: number | null;
+        peRatio: number | null;
+        latestEarnings: number | null;
+    }[];
     summary: {
         totalInvestment: number;
         totalPresentValue: number;

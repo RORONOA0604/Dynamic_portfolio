@@ -1,10 +1,19 @@
 import YahooFinance from "yahoo-finance2";
 import { yahooSymbols } from "../data/yahoo-symbols.js";
-const yahooFinance = new YahooFinance();
+import { MemoryCache } from "../utils/cache.js";
+const yahooFinance = new YahooFinance({
+    suppressNotices: ["yahooSurvey"],
+});
+const yahooPriceCache = new MemoryCache(15 * 1000);
 export function getYahooSymbol(exchangeCode) {
     return yahooSymbols[exchangeCode] ?? null;
 }
 export async function getMarketPrices(exchangeCodes) {
+    const cacheKey = exchangeCodes.join(",");
+    const cachedPrices = yahooPriceCache.get(cacheKey);
+    if (cachedPrices) {
+        return cachedPrices;
+    }
     const requests = exchangeCodes
         .map((exchangeCode) => {
         const symbol = getYahooSymbol(exchangeCode);
@@ -25,7 +34,7 @@ export async function getMarketPrices(exchangeCodes) {
         quote.symbol,
         quote.regularMarketPrice,
     ]));
-    return requests
+    const prices = requests
         .map((request) => {
         const currentPrice = quoteMap.get(request.symbol);
         if (currentPrice === undefined) {
@@ -38,5 +47,7 @@ export async function getMarketPrices(exchangeCodes) {
         };
     })
         .filter((price) => price !== null);
+    yahooPriceCache.set(cacheKey, prices);
+    return prices;
 }
 //# sourceMappingURL=market-data.service.js.map
