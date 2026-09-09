@@ -220,28 +220,5 @@ export const portfolioHoldings: PortfolioHolding[] = [
     quantity: 49,
     exchangeCode: "540719",
   },
-  {
-    id: "27",
-    name: "Infosys",
-    sector: "Others",
-    purchasePrice: 1647,
-    quantity: 36,
-    exchangeCode: "500209",
-  },
-  {
-    id: "28",
-    name: "Happiest Minds",
-    sector: "Others",
-    purchasePrice: 1103,
-    quantity: 45,
-    exchangeCode: "543237",
-  },
-  {
-    id: "29",
-    name: "EaseMyTrip",
-    sector: "Others",
-    purchasePrice: 20,
-    quantity: 1332,
-    exchangeCode: "543272",
-  },
+  
 ];

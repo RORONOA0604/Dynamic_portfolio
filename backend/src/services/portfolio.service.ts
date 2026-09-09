@@ -1,20 +1,59 @@
 import { portfolioHoldings } from "../data/portfolio.js";
 import {
-  calculatePortfolio,
+  calculatePortfolioWithMarketPrices,
   calculateSectorSummaries,
   calculateTotalInvestment,
 } from "./portfolio-calculation.service.js";
+import { getMarketPrices } from "./market-data.service.js";
 
-export function getPortfolioHoldings() {
-  return calculatePortfolio(portfolioHoldings);
-}
+export async function getPortfolioData() {
+  const exchangeCodes = portfolioHoldings.map(
+    (holding) => holding.exchangeCode
+  );
 
-export function getPortfolioTotalInvestment() {
-  return calculateTotalInvestment(portfolioHoldings);
-}
+  const marketPrices = await getMarketPrices(exchangeCodes);
 
-export function getPortfolioSectorSummaries() {
-  const holdings = calculatePortfolio(portfolioHoldings);
+  const marketPriceMap = new Map(
+    marketPrices.map((price) => [
+      price.exchangeCode,
+      price.currentPrice,
+    ])
+  );
 
-  return calculateSectorSummaries(holdings);
+  const holdings = calculatePortfolioWithMarketPrices(
+    portfolioHoldings,
+    marketPriceMap
+  );
+  const sectorSummaries = calculateSectorSummaries(holdings);
+  const totalInvestment = calculateTotalInvestment(
+    portfolioHoldings
+  );
+
+  const totalPresentValue = holdings.reduce(
+    (total, holding) =>
+      total + (holding.presentValue ?? 0),
+    0
+  );
+
+  const totalGainLoss = totalPresentValue - totalInvestment;
+
+  const totalGainLossPercentage =
+    totalInvestment === 0
+      ? 0
+      : (totalGainLoss / totalInvestment) * 100;
+
+  return {
+  holdings,
+  summary: {
+    totalInvestment,
+    totalPresentValue,
+    totalGainLoss: Math.round(
+      (totalGainLoss + Number.EPSILON) * 100
+    ) / 100,
+    totalGainLossPercentage: Math.round(
+      (totalGainLossPercentage + Number.EPSILON) * 100
+    ) / 100,
+  },
+  sectorSummaries,
+};
 }

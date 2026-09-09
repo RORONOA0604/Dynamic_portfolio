@@ -1,7 +1,7 @@
 import http from "node:http";
-import { getPortfolioHoldings, getPortfolioSectorSummaries, getPortfolioTotalInvestment, } from "./services/portfolio.service.js";
+import { getPortfolioData } from "./services/portfolio.service.js";
 const PORT = 5000;
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
     if (req.url === "/api/health" && req.method === "GET") {
         res.writeHead(200, {
             "Content-Type": "application/json",
@@ -13,20 +13,26 @@ const server = http.createServer((req, res) => {
         return;
     }
     if (req.url === "/api/portfolio" && req.method === "GET") {
-        const holdings = getPortfolioHoldings();
-        const totalInvestment = getPortfolioTotalInvestment();
-        const sectorSummaries = getPortfolioSectorSummaries();
-        res.writeHead(200, {
-            "Content-Type": "application/json",
-        });
-        res.end(JSON.stringify({
-            success: true,
-            data: {
-                holdings,
-                totalInvestment,
-                sectorSummaries,
-            },
-        }));
+        try {
+            const portfolio = await getPortfolioData();
+            res.writeHead(200, {
+                "Content-Type": "application/json",
+            });
+            res.end(JSON.stringify({
+                success: true,
+                data: portfolio,
+            }));
+        }
+        catch (error) {
+            console.error("Portfolio API error:", error);
+            res.writeHead(500, {
+                "Content-Type": "application/json",
+            });
+            res.end(JSON.stringify({
+                success: false,
+                message: "Unable to fetch portfolio market data",
+            }));
+        }
         return;
     }
     res.writeHead(404, {
