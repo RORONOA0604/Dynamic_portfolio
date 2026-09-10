@@ -1,5 +1,5 @@
 "use client";
-
+import { memo } from "react";
 import type { PortfolioHolding } from "../../types/portfolio";
 
 interface PortfolioTableProps {
@@ -28,7 +28,7 @@ function formatCurrency(value: number | null): string {
   }).format(value);
 }
 
-export default function PortfolioTable({
+function PortfolioTable({
   holdings,
 }: PortfolioTableProps) {
   return (
@@ -176,3 +176,4 @@ export default function PortfolioTable({
     </div>
   );
 }
+export default memo(PortfolioTable);

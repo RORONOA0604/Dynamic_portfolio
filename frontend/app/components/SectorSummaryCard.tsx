@@ -1,5 +1,5 @@
 import type { SectorSummary } from "../../types/portfolio";
-
+import { memo } from "react";
 interface SectorSummaryCardProps {
   summary: SectorSummary;
 }
@@ -12,7 +12,7 @@ function formatCurrency(value: number): string {
   }).format(value);
 }
 
-export default function SectorSummaryCard({
+function SectorSummaryCard({
   summary,
 }: SectorSummaryCardProps) {
   const isGain = summary.totalGainLoss >= 0;
@@ -57,3 +57,4 @@ export default function SectorSummaryCard({
     </div>
   );
 }
+export default memo(SectorSummaryCard);

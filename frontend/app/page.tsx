@@ -66,15 +66,18 @@ export default function Home() {
   }
 
   useEffect(() => {
-    fetchPortfolio();
+  const loadPortfolio = async () => {
+    await fetchPortfolio();
+  };
 
-    const interval = setInterval(() => {
-      fetchPortfolio();
-    }, 15000);
-    
+  loadPortfolio();
 
-    return () => clearInterval(interval);
-  }, []);
+  const interval = setInterval(() => {
+    loadPortfolio();
+  }, 15000);
+
+  return () => clearInterval(interval);
+}, []);
 
   const isGain =
     summary !== null && summary.totalGainLoss >= 0;
