@@ -1,13 +1,24 @@
 import { chromium } from "playwright";
+import serverlessChromium from "@sparticuz/chromium";
 import { googleFinanceSymbols } from "../data/google-finance-symbols.js";
 import { MemoryCache } from "../utils/cache.js";
 let browser = null;
 const googleFinanceCache = new MemoryCache(15 * 60 * 1000);
 async function getBrowser() {
     if (!browser) {
-        browser = await chromium.launch({
-            headless: true,
-        });
+        const isProduction = process.env.VERCEL === "1";
+        if (isProduction) {
+            browser = await chromium.launch({
+                headless: true,
+                args: serverlessChromium.args,
+                executablePath: await serverlessChromium.executablePath(),
+            });
+        }
+        else {
+            browser = await chromium.launch({
+                headless: true,
+            });
+        }
     }
     return browser;
 }

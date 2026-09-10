@@ -1,4 +1,5 @@
 import { chromium, type Browser } from "playwright";
+import serverlessChromium from "@sparticuz/chromium";
 import { googleFinanceSymbols } from "../data/google-finance-symbols.js";
 import { MemoryCache } from "../utils/cache.js";
 export interface GoogleFinanceData {
@@ -12,9 +13,19 @@ const googleFinanceCache = new MemoryCache<GoogleFinanceData>(
 );
 async function getBrowser(): Promise<Browser> {
   if (!browser) {
-    browser = await chromium.launch({
-      headless: true,
-    });
+    const isProduction = process.env.VERCEL === "1";
+
+    if (isProduction) {
+      browser = await chromium.launch({
+        headless: true,
+        args: serverlessChromium.args,
+        executablePath: await serverlessChromium.executablePath(),
+      });
+    } else {
+      browser = await chromium.launch({
+        headless: true,
+      });
+    }
   }
 
   return browser;
