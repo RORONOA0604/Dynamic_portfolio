@@ -1,20 +1,20 @@
 export declare function getPortfolioData(): Promise<{
     holdings: {
-        id: string;
-        name: string;
-        sector: string;
-        purchasePrice: number;
-        quantity: number;
-        exchangeCode: string;
+        exchange: "NSE" | "BSE";
+        peRatio: number | null;
+        latestEarnings: number | null;
         investment: number;
         portfolioPercentage: number;
         currentPrice: number | null;
         presentValue: number | null;
         gainLoss: number | null;
         gainLossPercentage: number | null;
-        exchange: "BSE" | "NSE";
-        peRatio: number | null;
-        latestEarnings: number | null;
+        id: string;
+        name: string;
+        sector: string;
+        purchasePrice: number;
+        quantity: number;
+        exchangeCode: string;
     }[];
     summary: {
         totalInvestment: number;
