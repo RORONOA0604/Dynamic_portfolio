@@ -4,7 +4,7 @@ import {
   calculateSectorSummaries,
   calculateTotalInvestment,
 } from "./portfolio-calculation.service.js";
-import { getMarketPrices } from "./market-data.service.js";
+import { getMarketPrices,getYahooSymbol, } from "./market-data.service.js";
 import {
   getGoogleFinanceDataForSymbols,
   getGoogleFinanceSymbol,
@@ -38,13 +38,19 @@ const googleFinanceData = await getGoogleFinanceDataForSymbols(
   const googleSymbol = getGoogleFinanceSymbol(
     holding.exchangeCode
   );
+  const yahooSymbol = getYahooSymbol(
+  holding.exchangeCode
+);
 
+  const exchange: "NSE" | "BSE" =
+  yahooSymbol?.endsWith(".BO") ? "BSE" : "NSE";
   const googleData = googleSymbol
     ? googleFinanceData.get(googleSymbol)
     : undefined;
 
   return {
     ...holding,
+    exchange,
     peRatio: googleData?.peRatio ?? null,
     latestEarnings: googleData?.latestEarnings ?? null,
   };

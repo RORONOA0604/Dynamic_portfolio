@@ -1,6 +1,6 @@
 import { portfolioHoldings } from "../data/portfolio.js";
 import { calculatePortfolioWithMarketPrices, calculateSectorSummaries, calculateTotalInvestment, } from "./portfolio-calculation.service.js";
-import { getMarketPrices } from "./market-data.service.js";
+import { getMarketPrices, getYahooSymbol, } from "./market-data.service.js";
 import { getGoogleFinanceDataForSymbols, getGoogleFinanceSymbol, } from "./google-finance.service.js";
 export async function getPortfolioData() {
     const exchangeCodes = portfolioHoldings.map((holding) => holding.exchangeCode);
@@ -16,11 +16,14 @@ export async function getPortfolioData() {
     const holdings = calculatePortfolioWithMarketPrices(portfolioHoldings, marketPriceMap);
     const holdingsWithGoogleData = holdings.map((holding) => {
         const googleSymbol = getGoogleFinanceSymbol(holding.exchangeCode);
+        const yahooSymbol = getYahooSymbol(holding.exchangeCode);
+        const exchange = yahooSymbol?.endsWith(".BO") ? "BSE" : "NSE";
         const googleData = googleSymbol
             ? googleFinanceData.get(googleSymbol)
             : undefined;
         return {
             ...holding,
+            exchange,
             peRatio: googleData?.peRatio ?? null,
             latestEarnings: googleData?.latestEarnings ?? null,
         };

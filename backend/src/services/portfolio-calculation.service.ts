@@ -1,6 +1,7 @@
 import type { PortfolioHolding } from "../types/portfolio.js";
 
 export interface CalculatedPortfolioHolding extends PortfolioHolding {
+  
   investment: number;
   portfolioPercentage: number;
   currentPrice: number | null;
@@ -9,6 +10,7 @@ export interface CalculatedPortfolioHolding extends PortfolioHolding {
   gainLossPercentage: number | null;
   peRatio: number | null;
   latestEarnings: number | null;
+  exchange: "NSE" | "BSE";
 }
 
 export interface SectorSummary {
@@ -55,6 +57,7 @@ export function calculatePortfolio(
   gainLossPercentage: null,
   peRatio: null,
   latestEarnings: null,
+  exchange: "NSE",
 };  
   });
 }

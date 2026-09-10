@@ -1,69 +1,332 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState } from "react";
+import SectorSummaryCard from "./components/SectorSummaryCard";
+import PortfolioTable from "./components/PortfolioTable";
+import type {
+  PortfolioResponse,
+  PortfolioSummary,
+  SectorSummary,
+} from "../types/portfolio";
+
+function formatCurrency(value: number): string {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 2,
+  }).format(value);
+}
 
 export default function Home() {
+  const [summary, setSummary] =
+    useState<PortfolioSummary | null>(null);
+  const [holdings, setHoldings] =
+  useState<PortfolioResponse["data"]["holdings"]>([]);
+  const [sectorSummaries, setSectorSummaries] =
+  useState<SectorSummary[]>([]);
+
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] =
+  useState<Date | null>(null);
+
+  const [expandedSectors, setExpandedSectors] =
+  useState<Record<string, boolean>>({});
+  async function fetchPortfolio() {
+    try {
+      setError(null);
+      setRefreshing(true);
+      const response = await fetch(
+        "http://localhost:5000/api/portfolio"
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch portfolio");
+      }
+
+      const result: PortfolioResponse =
+        await response.json();
+
+      if (!result.success) {
+        throw new Error("Portfolio API returned an error");
+      }
+
+      setSummary(result.data.summary);
+      setHoldings(result.data.holdings);
+      setSectorSummaries(result.data.sectorSummaries);
+      setLastUpdated(new Date());
+    } catch (error) {
+      console.error("Portfolio fetch error:", error);
+      setError("Unable to load portfolio data");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchPortfolio();
+
+    const interval = setInterval(() => {
+      fetchPortfolio();
+    }, 15000);
+    
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const isGain =
+    summary !== null && summary.totalGainLoss >= 0;
+  const holdingsBySector = sectorSummaries.map(
+  (sectorSummary) => ({
+    summary: sectorSummary,
+    holdings: holdings.filter(
+      (holding) =>
+        holding.sector === sectorSummary.sector
+    ),
+  })
+);
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <main className="min-h-screen bg-slate-100 px-4 py-8 sm:px-6 lg:px-10">
+      <div className="mx-auto w-full max-w-[1600px]">
+        <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    <p className="mb-2 text-sm font-medium text-blue-600">
+      Portfolio Dashboard
+    </p>
+
+    <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+      Dynamic Portfolio
+    </h1>
+
+    <p className="mt-2 text-slate-600">
+      Live portfolio performance and market data
+    </p>
+  </div>
+
+  <div className="flex flex-wrap items-center gap-3 text-sm">
+  <div className="flex items-center gap-2 font-medium text-green-600">
+    <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
+    Live Data
+  </div>
+
+  {refreshing && (
+    <span className="text-slate-500">
+      Updating...
+    </span>
+  )}
+
+  {lastUpdated && !refreshing && (
+    <span className="text-slate-500">
+      Last updated:{" "}
+      {lastUpdated.toLocaleTimeString("en-IN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      })}
+    </span>
+  )}
+</div>
+</header>
+
+        {error && (
+          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
+            {error}
+          </div>
+        )}
+
+        {loading && !summary ? (
+          <div className="rounded-xl bg-white p-8 text-center shadow-sm">
+            <p className="text-slate-600">
+              Loading portfolio data...
+            </p>
+          </div>
+        ) : summary ? (
+          <>
+            <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+                <p className="text-sm font-medium text-slate-500">
+                  Total Investment
+                </p>
+
+                <p className="mt-2 text-2xl font-bold text-slate-900">
+                  {formatCurrency(
+                    summary.totalInvestment
+                  )}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+                <p className="text-sm font-medium text-slate-500">
+                  Present Value
+                </p>
+
+                <p className="mt-2 text-2xl font-bold text-slate-900">
+                  {formatCurrency(
+                    summary.totalPresentValue
+                  )}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+                <p className="text-sm font-medium text-slate-500">
+                  Total Gain/Loss
+                </p>
+
+                <p
+                  className={`mt-2 text-2xl font-bold ${
+                    isGain
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {formatCurrency(
+                    summary.totalGainLoss
+                  )}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+                <p className="text-sm font-medium text-slate-500">
+                  Gain/Loss %
+                </p>
+
+                <p
+                  className={`mt-2 text-2xl font-bold ${
+                    isGain
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {summary.totalGainLossPercentage.toFixed(
+                    2
+                  )}
+                  %
+                </p>
+              </div>
+            </section>
+
+            <section className="mt-8 w-full rounded-xl bg-white p-6 shadow-sm">
+  <div className="mb-6">
+    <h2 className="text-lg font-semibold text-slate-900">
+      Portfolio by Sector
+    </h2>
+
+    <p className="mt-1 text-sm text-slate-500">
+      Holdings grouped by sector with sector-level performance
+    </p>
+  </div>
+
+  <div className="space-y-4">
+  {holdingsBySector.map(
+    ({ summary, holdings: sectorHoldings }, index) => {
+      const isExpanded =
+        expandedSectors[summary.sector] ??
+        index < 2;
+
+      return (
+        <div
+          key={summary.sector}
+          className="overflow-hidden rounded-xl border border-slate-200"
+        >
+          <button
+            type="button"
+            onClick={() =>
+              setExpandedSectors((current) => ({
+                ...current,
+                [summary.sector]: !isExpanded,
+              }))
+            }
+            className="flex w-full items-center justify-between gap-4 bg-white px-5 py-4 text-left transition-colors hover:bg-slate-50"
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <div>
+              <h3 className="text-base font-semibold text-slate-900">
+                {summary.sector}
+              </h3>
+
+              <p className="mt-1 text-sm text-slate-500">
+                {sectorHoldings.length} stocks
+              </p>
+            </div>
+
+            <div className="hidden items-center gap-12 sm:flex">
+              <div>
+                <p className="text-xs text-slate-500">
+                  Total Investment
+                </p>
+
+                <p className="mt-1 font-semibold text-slate-900">
+                  {new Intl.NumberFormat("en-IN", {
+                    style: "currency",
+                    currency: "INR",
+                    maximumFractionDigits: 2,
+                  }).format(summary.totalInvestment)}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs text-slate-500">
+                  Present Value
+                </p>
+
+                <p className="mt-1 font-semibold text-slate-900">
+                  {new Intl.NumberFormat("en-IN", {
+                    style: "currency",
+                    currency: "INR",
+                    maximumFractionDigits: 2,
+                  }).format(summary.totalPresentValue)}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs text-slate-500">
+                  Gain/Loss
+                </p>
+
+                <p
+                  className={`mt-1 font-semibold ${
+                    summary.totalGainLoss >= 0
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {new Intl.NumberFormat("en-IN", {
+                    style: "currency",
+                    currency: "INR",
+                    maximumFractionDigits: 2,
+                  }).format(summary.totalGainLoss)}
+                </p>
+              </div>
+            </div>
+
+            <span
+              className={`text-xl text-slate-500 transition-transform ${
+                isExpanded ? "rotate-180" : ""
+              }`}
+            >
+             ⌄
+            </span>
+          </button>
+
+          {isExpanded && (
+            <div className="border-t border-slate-200 bg-white p-4">
+              <div className="mb-4 sm:hidden">
+                <SectorSummaryCard summary={summary} />
+              </div>
+
+              <PortfolioTable holdings={sectorHoldings} />
+            </div>
+          )}
         </div>
-      </main>
-    </div>
+      );
+    }
+  )}
+</div>
+          </section>
+          </>
+        ) : null}
+      </div>
+    </main>
   );
 }

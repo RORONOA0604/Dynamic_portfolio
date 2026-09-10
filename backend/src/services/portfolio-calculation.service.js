@@ -21,6 +21,7 @@ export function calculatePortfolio(holdings) {
             gainLossPercentage: null,
             peRatio: null,
             latestEarnings: null,
+            exchange: "NSE",
         };
     });
 }

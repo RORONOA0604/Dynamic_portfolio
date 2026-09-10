@@ -12,6 +12,7 @@ export declare function getPortfolioData(): Promise<{
         presentValue: number | null;
         gainLoss: number | null;
         gainLossPercentage: number | null;
+        exchange: "BSE" | "NSE";
         peRatio: number | null;
         latestEarnings: number | null;
     }[];

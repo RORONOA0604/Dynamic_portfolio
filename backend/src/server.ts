@@ -3,6 +3,15 @@ import { getPortfolioData } from "./services/portfolio.service.js";
 const PORT = 5000;
 
 const server = http.createServer(async(req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
+    res.writeHead(204);
+    res.end();
+    return;
+  }
   if (req.url === "/api/health" && req.method === "GET") {
     res.writeHead(200, {
       "Content-Type": "application/json",

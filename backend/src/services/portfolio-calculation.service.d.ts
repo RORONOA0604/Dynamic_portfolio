@@ -8,6 +8,7 @@ export interface CalculatedPortfolioHolding extends PortfolioHolding {
     gainLossPercentage: number | null;
     peRatio: number | null;
     latestEarnings: number | null;
+    exchange: "NSE" | "BSE";
 }
 export interface SectorSummary {
     sector: string;
