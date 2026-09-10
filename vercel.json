@@ -8,8 +8,7 @@
     "backend": {
       "root": "backend/",
       "framework": "node",
-      "entrypoint": "src/server.ts",
-      "buildCommand": "PLAYWRIGHT_BROWSERS_PATH=0 yarn playwright install chromium --only-shell && yarn build"
+      "entrypoint": "dist/server.js"
     }
   },
   "rewrites": [
