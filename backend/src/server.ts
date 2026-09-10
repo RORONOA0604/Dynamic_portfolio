@@ -1,6 +1,6 @@
 import http from "node:http";
 import { getPortfolioData } from "./services/portfolio.service.js";
-const PORT = 5000;
+const PORT = Number(process.env.PORT) || 5000;
 
 const server = http.createServer(async(req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");

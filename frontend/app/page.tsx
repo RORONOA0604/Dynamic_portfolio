@@ -38,7 +38,7 @@ export default function Home() {
       setError(null);
       setRefreshing(true);
       const response = await fetch(
-        "http://localhost:5000/api/portfolio"
+        "/api/portfolio"
       );
 
       if (!response.ok) {
