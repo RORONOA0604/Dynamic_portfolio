@@ -144,6 +144,18 @@ export default function Home() {
             <p className="text-slate-600">
               Loading portfolio data...
             </p>
+             <p className="mt-3 text-sm leading-6 text-slate-500">
+            Please wait while we fetch the latest market data from our
+            financial data sources.
+          </p>
+
+          <p className="mt-2 text-sm font-medium text-slate-700">
+            The first load may take up to 1–2 minutes.
+          </p>
+
+          <p className="mt-4 text-xs text-slate-400">
+            Please be patient and do not refresh or close this page.
+          </p>
           </div>
         ) : summary ? (
           <>
