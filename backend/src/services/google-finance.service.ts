@@ -48,8 +48,8 @@ export async function getGoogleFinanceData(
       `https://www.google.com/finance/beta/quote/${symbol}:NSE?hl=en`;
 
     await page.goto(url, {
-      waitUntil: "networkidle",
-      timeout: 60000,
+      waitUntil: "domcontentloaded",
+      timeout: 30000,
     });
 
     await page.waitForTimeout(2000);
